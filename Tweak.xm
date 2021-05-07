@@ -11,10 +11,16 @@
 @interface SBRootFolderController : UIViewController
 @end
 
+@interface CSCoverSheetViewController : UIViewController
+@end
+
 HBPreferences *preferences;
 UIView *waterView;
+UIView *waterViewTwo;
 YSCWaterWaveView *waterWave;
+YSCWaterWaveView *waterWaveTwo;
 UIDevice *myDevice;
+UIDevice *myDeviceTwo;
 BOOL enabled;
 BOOL waveFillUpAnimation;
 NSString *firstWaveColorString;
@@ -22,8 +28,48 @@ NSString *secondWaveColorString;
 CGFloat firstWaveAlpha;
 CGFloat secondWaveAlpha;
 CGFloat waveAmplitude;
+NSInteger waveLocation;
 
-%group CurrentWave
+%group CurrentWaveLock
+
+%hook CSCoverSheetViewController
+
+-(void)viewDidAppear:(BOOL)animated {
+	%orig;
+	if (!waterViewTwo) {		
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateWavePercent) name:@"UIDeviceBatteryLevelDidChangeNotification" object:nil];
+
+		waterViewTwo = [[UIView alloc] initWithFrame:[[self view] bounds]];
+		waterViewTwo.backgroundColor = UIColor.clearColor;
+		[[self view] insertSubview:waterViewTwo atIndex:0];
+
+		myDeviceTwo = [UIDevice currentDevice];
+		[myDeviceTwo setBatteryMonitoringEnabled:YES];
+
+		waterWaveTwo = [[%c(YSCWaterWaveView) alloc] initWithFrame:[[self view] bounds] waveSpeed:0.127f startupSpeed:2.0 waveAmplitudeMultiplier:waveAmplitude];
+		// if (!waveFillUpAnimation) {
+		// 	[waterWaveTwo setCurrentWavePointY:];
+		// }
+		[waterWaveTwo setPercent:[myDeviceTwo batteryLevel]];
+		waterWaveTwo.firstWaveColor = [UIColor pf_colorWithHexString:firstWaveColorString alpha:firstWaveAlpha/10];
+		waterWaveTwo.secondWaveColor = [UIColor pf_colorWithHexString:secondWaveColorString alpha:secondWaveAlpha/10];
+		[waterViewTwo addSubview:waterWaveTwo];
+		[waterWaveTwo startWave];
+	}
+}
+
+%new
+-(void)updateWavePercent {
+	if (waterWaveTwo) {
+		waterWaveTwo.percent = [myDeviceTwo batteryLevel];
+	}
+}
+
+%end
+
+%end
+
+%group CurrentWaveHome
 
 %hook SBRootFolderController
 
@@ -71,7 +117,12 @@ CGFloat waveAmplitude;
 	[preferences registerFloat:&firstWaveAlpha default:4 forKey:@"firstWaveAlpha"];
 	[preferences registerFloat:&secondWaveAlpha default:5 forKey:@"secondWaveAlpha"];
 	[preferences registerFloat:&waveAmplitude default:8 forKey:@"waveAmplitude"];
+	[preferences registerInteger:&waveLocation default:2 forKey:@"waveLocation"];
+
 	if (enabled) {
-		%init(CurrentWave);
+		if (waveLocation == 0 || waveLocation == 1)
+			%init(CurrentWaveHome);
+		if (waveLocation == 0 || waveLocation == 2)
+			%init(CurrentWaveLock);
 	}
 }

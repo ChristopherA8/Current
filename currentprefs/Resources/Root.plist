@@ -27,6 +27,32 @@
 			<string>Enable</string>
 		</dict>
 		<dict>
+			<key>PostNotification</key>
+			<string>com.chr1s.currentprefs/ReloadPrefs</string>
+			<key>cell</key>
+			<string>PSSegmentCell</string>
+			<key>default</key>
+			<integer>2</integer>
+			<key>defaults</key>
+			<string>com.chr1s.currentprefs</string>
+			<key>key</key>
+			<string>waveLocation</string>
+			<key>label</key>
+			<string>Wave Location</string>
+			<key>validTitles</key>
+			<array>
+				<string>Both</string>
+				<string>Homescreen</string>
+				<string>Lockscreen</string>
+			</array>
+			<key>validValues</key>
+			<array>
+				<integer>0</integer>
+				<integer>1</integer>
+				<integer>2</integer>
+			</array>
+		</dict>
+		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>

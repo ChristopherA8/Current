@@ -21,6 +21,13 @@
         self.titleLabel.text = @"Current";
         [self.navigationItem.titleView addSubview:self.titleLabel];
 
+        self.iconView = [[UIImageView alloc] initWithFrame:CGRectMake(0,0,10,10)];
+        self.iconView.contentMode = UIViewContentModeScaleAspectFit;
+        self.iconView.image = [UIImage imageWithContentsOfFile:@"/Library/PreferenceBundles/currentprefs.bundle/icon@3x.png"];
+        self.iconView.translatesAutoresizingMaskIntoConstraints = NO;
+        self.iconView.alpha = 0.0;
+        [self.navigationItem.titleView addSubview:self.iconView];
+
         self.headerView = [[UIView alloc] initWithFrame:CGRectMake(0,0,200,150)];
 		self.headerView.clipsToBounds = YES;
         self.headerView.backgroundColor = UIColor.whiteColor;
@@ -50,6 +57,10 @@
             [self.titleLabel.leadingAnchor constraintEqualToAnchor:self.navigationItem.titleView.leadingAnchor],
             [self.titleLabel.trailingAnchor constraintEqualToAnchor:self.navigationItem.titleView.trailingAnchor],
             [self.titleLabel.bottomAnchor constraintEqualToAnchor:self.navigationItem.titleView.bottomAnchor],
+	        [self.iconView.topAnchor constraintEqualToAnchor:self.navigationItem.titleView.topAnchor],
+            [self.iconView.leadingAnchor constraintEqualToAnchor:self.navigationItem.titleView.leadingAnchor],
+            [self.iconView.trailingAnchor constraintEqualToAnchor:self.navigationItem.titleView.trailingAnchor],
+            [self.iconView.bottomAnchor constraintEqualToAnchor:self.navigationItem.titleView.bottomAnchor],
 			// [headerImageView.topAnchor constraintEqualToAnchor:self.headerView.topAnchor constant:0.0f],
             // // [headerImageView.topAnchor constraintEqualToAnchor:self.headerView.topAnchor],
             // [headerImageView.leadingAnchor constraintEqualToAnchor:self.headerView.leadingAnchor],
@@ -62,6 +73,22 @@
         ]];
 	}
 	return self;
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    CGFloat const offsetY = scrollView.contentOffset.y;
+
+    if (offsetY > 100) {
+        [UIView animateWithDuration:0.2 animations:^{
+            self.iconView.alpha = 1.0;
+            self.titleLabel.alpha = 0.0;
+        }];
+    } else {
+        [UIView animateWithDuration:0.2 animations:^{
+            self.iconView.alpha = 0.0;
+            self.titleLabel.alpha = 1.0;
+        }];
+    }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {

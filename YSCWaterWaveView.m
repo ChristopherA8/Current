@@ -240,12 +240,8 @@
         increase = NO;
     }
     
-    if (waveAmplitudeMultiplier) {
-        waveAmplitude = variable * waveAmplitudeMultiplier;
-    } else {
-        waveAmplitude = variable * 5;
-    }
-    waveAmplitude = variable * 10;
+    waveAmplitude = variable * waveAmplitudeMultiplier;
+    // waveAmplitude = variable * 10;
     // waveAmplitude = variable * 5;
 }
 
