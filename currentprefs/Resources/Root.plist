@@ -82,7 +82,7 @@
 			<key>cellClass</key>
 			<string>HBDiscreteSliderTableCell</string>
 			<key>default</key>
-			<real>5</real>
+			<real>4</real>
 			<key>defaults</key>
 			<string>com.chr1s.currentprefs</string>
 			<key>key</key>
@@ -130,7 +130,7 @@
 			<key>cellClass</key>
 			<string>HBDiscreteSliderTableCell</string>
 			<key>default</key>
-			<real>4</real>
+			<real>3</real>
 			<key>defaults</key>
 			<string>com.chr1s.currentprefs</string>
 			<key>key</key>

@@ -106,8 +106,8 @@ NSInteger waveLocation;
 	[preferences registerBool:&enabled default:YES forKey:@"enabled"];
 	[preferences registerObject:&firstWaveColorString default:@"#36ADEC" forKey:@"firstWaveColor"];
 	[preferences registerObject:&secondWaveColorString default:@"#36DBEC" forKey:@"secondWaveColor"];
-	[preferences registerFloat:&firstWaveAlpha default:4 forKey:@"firstWaveAlpha"];
-	[preferences registerFloat:&secondWaveAlpha default:5 forKey:@"secondWaveAlpha"];
+	[preferences registerFloat:&firstWaveAlpha default:3 forKey:@"firstWaveAlpha"];
+	[preferences registerFloat:&secondWaveAlpha default:4 forKey:@"secondWaveAlpha"];
 	[preferences registerFloat:&waveAmplitude default:8 forKey:@"waveAmplitude"];
 	[preferences registerInteger:&waveLocation default:2 forKey:@"waveLocation"];
 
