@@ -7,7 +7,7 @@ BUNDLE_NAME = currentprefs
 
 currentprefs_FILES = $(wildcard *.m)
 currentprefs_FRAMEWORKS = UIKit
-digitalclockprefs_LIBRARIES = colorpicker
+currentprefs_LIBRARIES = colorpicker
 currentprefs_PRIVATE_FRAMEWORKS = Preferences
 $(BUNDLE_NAME)_EXTRA_FRAMEWORKS += Cephei CepheiPrefs
 currentprefs_INSTALL_PATH = /Library/PreferenceBundles
