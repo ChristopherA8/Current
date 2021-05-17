@@ -39,6 +39,7 @@ NSInteger waveLocation;
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateWavePercent) name:@"UIDeviceBatteryLevelDidChangeNotification" object:nil];
 
 		waterViewTwo = [[UIView alloc] initWithFrame:[[self view] bounds]];
+		[waterViewTwo setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 		waterViewTwo.backgroundColor = UIColor.clearColor;
 		[[self view] insertSubview:waterViewTwo atIndex:0];
 
@@ -46,6 +47,7 @@ NSInteger waveLocation;
 		[myDeviceTwo setBatteryMonitoringEnabled:YES];
 
 		waterWaveTwo = [[%c(YSCWaterWaveView) alloc] initWithFrame:[[self view] bounds] waveSpeed:0.127f startupSpeed:2.0 waveAmplitudeMultiplier:waveAmplitude];
+		[waterWaveTwo setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 		[waterWaveTwo setPercent:[myDeviceTwo batteryLevel]];
 		waterWaveTwo.firstWaveColor = [UIColor pf_colorWithHexString:firstWaveColorString alpha:firstWaveAlpha/10];
 		waterWaveTwo.secondWaveColor = [UIColor pf_colorWithHexString:secondWaveColorString alpha:secondWaveAlpha/10];
@@ -75,6 +77,7 @@ NSInteger waveLocation;
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateWavePercent) name:@"UIDeviceBatteryLevelDidChangeNotification" object:nil];
 
 		waterView = [[UIView alloc] initWithFrame:[[self view] bounds]];
+		[waterView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 		waterView.backgroundColor = UIColor.clearColor;
 		[[self view] insertSubview:waterView atIndex:0];
 
@@ -82,6 +85,7 @@ NSInteger waveLocation;
 		[myDevice setBatteryMonitoringEnabled:YES];
 
 		waterWave = [[%c(YSCWaterWaveView) alloc] initWithFrame:[[self view] bounds] waveSpeed:0.127f startupSpeed:2.0 waveAmplitudeMultiplier:waveAmplitude];
+		[waterWave setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 		waterWave.percent = [myDevice batteryLevel];
 		waterWave.firstWaveColor = [UIColor pf_colorWithHexString:firstWaveColorString alpha:firstWaveAlpha/10];
 		waterWave.secondWaveColor = [UIColor pf_colorWithHexString:secondWaveColorString alpha:secondWaveAlpha/10];
