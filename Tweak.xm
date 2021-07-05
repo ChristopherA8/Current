@@ -29,6 +29,14 @@ CGFloat secondWaveAlpha;
 CGFloat waveAmplitude;
 NSInteger waveLocation;
 
+// This was for screenshots
+
+// %hook UIDevice
+// -(float)batteryLevel {
+// 	return 0.55;
+// }
+// %end
+
 %group CurrentWaveLock
 
 %hook CSCoverSheetViewController
@@ -121,4 +129,5 @@ NSInteger waveLocation;
 		if (waveLocation == 0 || waveLocation == 2)
 			%init(CurrentWaveLock);
 	}
+	// %init;
 }
