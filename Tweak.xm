@@ -9,16 +9,16 @@
 // https://www.uicolor.io
 
 @interface SBRootFolderController : UIViewController
+@property (nonatomic, retain) UIView* waterView;
+@property (nonatomic, retain) YSCWaterWaveView *waterWave;
 @end
 
 @interface CSCoverSheetViewController : UIViewController
+@property (nonatomic, retain) UIView* waterView;
+@property (nonatomic, retain) YSCWaterWaveView *waterWave;
 @end
 
 HBPreferences *preferences;
-UIView *waterView;
-UIView *waterViewTwo;
-YSCWaterWaveView *waterWave;
-YSCWaterWaveView *waterWaveTwo;
 UIDevice *myDevice;
 UIDevice *myDeviceTwo;
 BOOL enabled;
@@ -29,45 +29,67 @@ CGFloat secondWaveAlpha;
 CGFloat waveAmplitude;
 NSInteger waveLocation;
 
-// This was for screenshots
-
-// %hook UIDevice
-// -(float)batteryLevel {
-// 	return 0.55;
-// }
-// %end
-
 %group CurrentWaveLock
 
 %hook CSCoverSheetViewController
 
+%property (nonatomic, retain) UIView* waterView;
+%property (nonatomic, retain) YSCWaterWaveView *waterWave;
+
 -(void)viewDidAppear:(BOOL)animated {
 	%orig;
-	if (!waterViewTwo) {		
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateWavePercent) name:@"UIDeviceBatteryLevelDidChangeNotification" object:nil];
-
-		waterViewTwo = [[UIView alloc] initWithFrame:[[self view] bounds]];
-		[waterViewTwo setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-		waterViewTwo.backgroundColor = UIColor.clearColor;
-		[[self view] insertSubview:waterViewTwo atIndex:0];
-
+	if (!self.waterView) {
 		myDeviceTwo = [UIDevice currentDevice];
 		[myDeviceTwo setBatteryMonitoringEnabled:YES];
+		
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(checkForCharging:) name:UIDeviceBatteryStateDidChangeNotification object:[UIDevice currentDevice]];	
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateWavePercent) name:UIDeviceBatteryLevelDidChangeNotification object:nil];
 
-		waterWaveTwo = [[%c(YSCWaterWaveView) alloc] initWithFrame:[[self view] bounds] waveSpeed:0.127f startupSpeed:2.0 waveAmplitudeMultiplier:waveAmplitude];
-		[waterWaveTwo setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-		[waterWaveTwo setPercent:[myDeviceTwo batteryLevel]];
-		waterWaveTwo.firstWaveColor = [UIColor pf_colorWithHexString:firstWaveColorString alpha:firstWaveAlpha/10];
-		waterWaveTwo.secondWaveColor = [UIColor pf_colorWithHexString:secondWaveColorString alpha:secondWaveAlpha/10];
-		[waterViewTwo addSubview:waterWaveTwo];
-		[waterWaveTwo startWave];
+		self.waterView = [[UIView alloc] initWithFrame:[[self view] bounds]];
+		[self.waterView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
+		self.waterView.backgroundColor = UIColor.clearColor;
+		[[self view] insertSubview:self.waterView atIndex:0];
+
+		self.waterWave = [[%c(YSCWaterWaveView) alloc] initWithFrame:[[self view] bounds] waveSpeed:0.127f startupSpeed:2.0 waveAmplitudeMultiplier:waveAmplitude];
+		[self.waterWave setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
+		[self.waterWave setPercent:[myDeviceTwo batteryLevel]];
+		self.waterWave.firstWaveColor = [UIColor pf_colorWithHexString:firstWaveColorString alpha:firstWaveAlpha/10];
+		self.waterWave.secondWaveColor = [UIColor pf_colorWithHexString:secondWaveColorString alpha:secondWaveAlpha/10];
+		[self.waterView addSubview:self.waterWave];
+		[self.waterWave startWave];
+
+		[preferences registerPreferenceChangeBlock:^{
+			if ([preferences boolForKey:@"showWhileCharging"] && !([[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateCharging)) {
+				self.waterView.alpha = 0.0;
+			} else if (![preferences boolForKey:@"showWhileCharging"]) {
+				self.waterView.alpha = 1.0;
+			}
+		}];
+
 	}
 }
 
 %new
 -(void)updateWavePercent {
-	if (waterWaveTwo) {
-		waterWaveTwo.percent = [myDeviceTwo batteryLevel];
+	if (self.waterWave) {
+		self.waterWave.percent = [myDeviceTwo batteryLevel];
+	}
+}
+
+%new
+-(void)checkForCharging:(long long)state {
+	if (!self.waterView) return;
+	if (![preferences boolForKey:@"showWhileCharging"]) return;
+	if ([myDeviceTwo batteryState] == UIDeviceBatteryStateCharging) {
+		[UIView animateWithDuration:0.7
+				animations:^{
+					self.waterView.alpha = 1.0;
+				}];
+	} else {
+		[UIView animateWithDuration:0.6
+				animations:^{
+					self.waterView.alpha = 0.0;
+				}];
 	}
 }
 
@@ -79,33 +101,63 @@ NSInteger waveLocation;
 
 %hook SBRootFolderController
 
+%property (nonatomic, retain) UIView* waterView;
+%property (nonatomic, retain) YSCWaterWaveView *waterWave;
+
 -(void)viewDidAppear:(BOOL)animated {
 	%orig;
-	if (!waterView) {		
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateWavePercent) name:@"UIDeviceBatteryLevelDidChangeNotification" object:nil];
-
-		waterView = [[UIView alloc] initWithFrame:[[self view] bounds]];
-		[waterView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-		waterView.backgroundColor = UIColor.clearColor;
-		[[self view] insertSubview:waterView atIndex:0];
-
+	if (!self.waterView) {		
 		myDevice = [UIDevice currentDevice];
 		[myDevice setBatteryMonitoringEnabled:YES];
 
-		waterWave = [[%c(YSCWaterWaveView) alloc] initWithFrame:[[self view] bounds] waveSpeed:0.127f startupSpeed:2.0 waveAmplitudeMultiplier:waveAmplitude];
-		[waterWave setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
-		waterWave.percent = [myDevice batteryLevel];
-		waterWave.firstWaveColor = [UIColor pf_colorWithHexString:firstWaveColorString alpha:firstWaveAlpha/10];
-		waterWave.secondWaveColor = [UIColor pf_colorWithHexString:secondWaveColorString alpha:secondWaveAlpha/10];
-		[waterView addSubview:waterWave];
-		[waterWave startWave];
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(checkForCharging:) name:UIDeviceBatteryStateDidChangeNotification object:[UIDevice currentDevice]];	
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateWavePercent) name:UIDeviceBatteryLevelDidChangeNotification object:nil];
+
+		self.waterView = [[UIView alloc] initWithFrame:[[self view] bounds]];
+		[self.waterView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
+		self.waterView.backgroundColor = UIColor.clearColor;
+		[[self view] insertSubview:self.waterView atIndex:0];
+
+		self.waterWave = [[%c(YSCWaterWaveView) alloc] initWithFrame:[[self view] bounds] waveSpeed:0.127f startupSpeed:2.0 waveAmplitudeMultiplier:waveAmplitude];
+		[self.waterWave setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
+		self.waterWave.percent = [myDevice batteryLevel];
+		self.waterWave.firstWaveColor = [UIColor pf_colorWithHexString:firstWaveColorString alpha:firstWaveAlpha/10];
+		self.waterWave.secondWaveColor = [UIColor pf_colorWithHexString:secondWaveColorString alpha:secondWaveAlpha/10];
+		[self.waterView addSubview:self.waterWave];
+		[self.waterWave startWave];
+
+		[preferences registerPreferenceChangeBlock:^{
+			if ([preferences boolForKey:@"showWhileCharging"] && !([[UIDevice currentDevice] batteryState] == UIDeviceBatteryStateCharging)) {
+				self.waterView.alpha = 0.0;
+			} else if (![preferences boolForKey:@"showWhileCharging"]) {
+				self.waterView.alpha = 1.0;
+			}
+		}];
+
 	}
 }
 
 %new
 -(void)updateWavePercent {
-	if (waterWave) {
-		waterWave.percent = [myDevice batteryLevel];
+	if (self.waterWave) {
+		self.waterWave.percent = [myDevice batteryLevel];
+	}
+}
+
+%new
+-(void)checkForCharging:(long long)state {
+	if (!self.waterView) return;
+	if (![preferences boolForKey:@"showWhileCharging"]) return;
+	if ([myDeviceTwo batteryState] == UIDeviceBatteryStateCharging) {
+		[UIView animateWithDuration:0.7
+				animations:^{
+					self.waterView.alpha = 1.0;
+				}];
+	} else {
+		[UIView animateWithDuration:0.6
+				animations:^{
+					self.waterView.alpha = 0.0;
+				}];
 	}
 }
 
@@ -129,5 +181,4 @@ NSInteger waveLocation;
 		if (waveLocation == 0 || waveLocation == 2)
 			%init(CurrentWaveLock);
 	}
-	// %init;
 }
